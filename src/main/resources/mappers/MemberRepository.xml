@@ -171,11 +171,11 @@
           AND socialId = #{socialId}
     </select>
 
-    <insert id="doJoinBySocial" parameterType="map">
+    <insert id="doJoinBySocial">
         INSERT INTO `member`
         SET regDate = NOW(),
         updateDate = NOW(),
-        loginId = #{loginId}, loginPw = #{loginPw}, socialProvider = #{socialProvider}, socialId = #{socialId}, `name` = #{name}, nickname = #{name}, -- 카카오 닉네임 그대로 사용
+        loginId = #{loginId}, loginPw = #{loginPw}, socialProvider = #{socialProvider}, socialId = #{socialId}, `name` = #{name}, nickname = #{nickname}, -- 카카오 닉네임 그대로 사용
             email = #{email}, cellphone = '',                                                                                                         -- 기본값 빈 문자열
             address = '',                                                                                                                             -- 기본값 빈 문자열
             photo = '',                                                                                                                               -- 기본값 빈 문자열

@@ -19,8 +19,8 @@ spring:
 
   oauth2:
     google:
-      client-id: "노션에서 가져오기"
-      client-secret: "노션에서 가져오기"
+      client-id: "구글 클라이언트 키"
+      client-secret: "구글 클라이언트 시크릿"
       redirect-uri: "http://localhost:8080/usr/member/google"
 
   datasource:
@@ -53,3 +53,8 @@ cloudinary:
   cloud_name: dfiqktimk
   api_key: 145284189636895
   api_secret: 4TS23PL5HMWPolljcIRqitpWwU0
+
+naver:
+  client-id: "ZdyW5GGtNSgCCaduup7_"
+  client-secret: "pJh4IlGi2_"
+  redirect-uri: "http://localhost:8080/usr/member/naver"

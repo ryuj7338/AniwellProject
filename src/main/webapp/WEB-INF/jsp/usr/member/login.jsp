@@ -110,6 +110,10 @@
             <img src="/img/web_light_sq_SI@3x.png" alt="Google 로그인 버튼" style="margin-top: 10px; height:40px;"/>
         </a>
 
+        <a href="https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=ZdyW5GGtNSgCCaduup7_&redirect_uri=http://localhost:8080/usr/member/naver&state=randomString">
+            <img src="https://static.nid.naver.com/oauth/small_g_in.PNG" alt="네이버 로그인">
+        </a>
+
 
         <!-- 로고 이미지 -->
         <img class="logo-img" src="/img/logo.png" alt="Aniwell Logo">

@@ -178,7 +178,6 @@
             <version>1.36.0</version>
         </dependency>
 
-<<<<<<< HEAD
         <!-- Google OAuth -->
         <dependency>
             <groupId>com.google.api-client</groupId>
@@ -196,8 +195,20 @@
             <version>2.10.1</version>
         </dependency>
 
-=======
->>>>>>> 860dba721d57510e4c5280d28b6ccf6c79cd63fd
+        <!-- 네이버 소셜 연동 -->
+        <!-- RestTemplate 사용 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- JSON 파싱용 (org.json 또는 jackson 중 선택) -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+
     </dependencies>
 
 

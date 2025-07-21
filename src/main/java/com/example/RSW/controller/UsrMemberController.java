@@ -728,8 +728,8 @@ public class UsrMemberController {
             // 1. access token 요청
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
             params.add("code", code);
-            params.add("client_id", "노션에서 가져오기");
-            params.add("client_secret", "노션에서 가져오기");
+            params.add("client_id", "구글 클라이언트 키");
+            params.add("client_secret", "구글 클라이언트 시크릿");
             params.add("redirect_uri", "http://localhost:8080/usr/member/google");
             params.add("grant_type", "authorization_code");
 
@@ -777,6 +777,70 @@ public class UsrMemberController {
         }
     }
 
+    // 네이버 로그인 콜백 처리
+    @RequestMapping("/usr/member/naver")
+    public String naverCallback(@RequestParam("code") String code,
+                                @RequestParam("state") String state,
+                                HttpServletRequest req, HttpServletResponse resp) {
 
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            // 🔐 네이버 애플리케이션 등록 정보
+            String clientId = "ZdyW5GGtNSgCCaduup7_";          // 네이버 Client ID
+            String clientSecret = "pJh4IlGi2_";  // 네이버 Client Secret
+            String redirectUri = "http://localhost:8080/usr/member/naver";  // 콜백 URI
+
+            // 1️⃣ access_token 요청 URL 구성
+            String tokenUrl = "https://nid.naver.com/oauth2.0/token" +
+                    "?grant_type=authorization_code" +
+                    "&client_id=" + clientId +
+                    "&client_secret=" + clientSecret +
+                    "&code=" + code +
+                    "&state=" + state;
+
+            // 2️⃣ 토큰 요청 (GET 방식)
+            ResponseEntity<Map> tokenResponse = restTemplate.getForEntity(tokenUrl, Map.class);
+            String accessToken = (String) tokenResponse.getBody().get("access_token");
+
+            // 3️⃣ 사용자 정보 요청을 위한 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+
+            // 4️⃣ 네이버 사용자 정보 요청
+            ResponseEntity<Map> userInfoResponse = restTemplate.exchange(
+                    "https://openapi.naver.com/v1/nid/me",
+                    HttpMethod.GET,
+                    entity,
+                    Map.class
+            );
+
+            // 5️⃣ 응답 파싱
+            Map<String, Object> body = userInfoResponse.getBody();
+            Map<String, Object> response = (Map<String, Object>) body.get("response");
+
+            // 6️⃣ 사용자 정보 추출
+            String socialId = String.valueOf(response.get("id"));  // 네이버 고유 ID
+            String name = (String) response.get("name");           // 이름
+            String email = (String) response.get("email");         // 이메일
+
+            // 7️⃣ 회원 DB에 등록 또는 기존 회원 로그인 처리
+            Member member = memberService.getOrCreateSocialMember("naver", socialId, email, name);
+
+            // 8️⃣ 세션 등록 (RQ 객체를 이용한 로그인 처리)
+            Rq rq = new Rq(req, resp, memberService);
+            rq.login(member);
+            req.getSession().setAttribute("rq", rq);
+
+            // ✅ 로그인 완료 후 홈으로 리다이렉트
+            return "redirect:/";
+
+        } catch (Exception e) {
+            // ⚠ 예외 처리 (토큰 요청 실패, 사용자 정보 오류 등)
+            e.printStackTrace();
+            return "redirect:/usr/member/login?error=naver";
+        }
+    }
 
 }

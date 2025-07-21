@@ -19,6 +19,7 @@ public class FileController {
     @GetMapping("/gen/file/download")
     public void downloadFile(@RequestParam("path") String path, HttpServletResponse response) throws IOException {
         // 업로드된 파일의 기본 경로 (로컬 서버 기준)
+        // 다른 사용자들도 볼 수 있게 경로 수정하기
         String basePath = "C:/upload/";
 
         // 요청받은 상대 경로를 OS에 맞게 파일 경로로 변환
