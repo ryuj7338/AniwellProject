@@ -411,18 +411,51 @@ public class UsrMemberController {
 
     @RequestMapping("/usr/member/doWithdraw")
     @ResponseBody
-    public String doWithdraw(HttpServletRequest req) {
+    public String doWithdraw(HttpServletRequest req, HttpServletResponse resp) {
         Rq rq = (Rq) req.getAttribute("rq");
 
         if (!rq.isLogined()) {
             return Ut.jsHistoryBack("F-1", "로그인 후 이용해주세요.");
         }
 
-        memberService.withdrawMember(rq.getLoginedMemberId());
-        rq.logout(); // 세션 종료
+        Member member = rq.getLoginedMember();
+
+        // 소셜회원인지 확인
+        if (member.isSocialMember() && "kakao".equals(member.getSocialProvider())) {
+            String kakaoAccessToken = (String) req.getSession().getAttribute("kakaoAccessToken");
+
+            if (kakaoAccessToken != null) {
+                try {
+                    RestTemplate restTemplate = new RestTemplate();
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.set("Authorization", "Bearer " + kakaoAccessToken);
+                    HttpEntity<?> entity = new HttpEntity<>(headers);
+
+                    ResponseEntity<Map> response = restTemplate.postForEntity(
+                            "https://kapi.kakao.com/v1/user/unlink", entity, Map.class);
+
+                    if (response.getStatusCode().is2xxSuccessful()) {
+                        System.out.println("✅ 카카오 연결 해제 성공");
+                    } else {
+                        System.out.println("⚠ 카카오 unlink 실패: " + response.getStatusCode());
+                    }
+                } catch (Exception e) {
+                    System.out.println("❌ 카카오 unlink 예외: " + e.getMessage());
+                }
+
+                req.getSession().removeAttribute("kakaoAccessToken");
+            }
+        }
+
+        // 서비스 회원 탈퇴 처리
+        memberService.withdrawMember(member.getId());
+
+        // 로그아웃
+        rq.logout();
 
         return Ut.jsReplace("S-1", "회원 탈퇴가 완료되었습니다.", "/");
     }
+
 
     @RequestMapping("/usr/member/vetCert")
     public String showVetCertForm(HttpServletRequest req, Model model) {
